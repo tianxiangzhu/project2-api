@@ -1,5 +1,5 @@
 {
-    "name": "imagequiz-api",
+    "name": "tianxiangzhu-nearbyplaces-api",
     "version": "1.0.0",
     "description": "",
     "main": "server.js",
@@ -9,16 +9,17 @@
     },
     "repository": {
       "type": "git",
-      "url": "git+https://github.com/tianxiangzhu/imagequiz-api.git"
+      "url": "git+https://github.com/tianxiangzhu/tianxiangzhu-nearbyplaces-api.git"
     },
     "author": "tianxiangzhu",
     "license": "ISC",
     "bugs": {
-      "url": "https://github.com/tianxiangzhu/imagequiz-api/issues"
+      "url": "https://github.com/tianxiangzhu/tianxiangzhu-nearbyplaces-api.git"
     },
-    "homepage": "https://github.com/tianxiangzhu/imagequiz-api#readme",
+    "homepage": "https://github.com/tianxiangzhu//tianxiangzhu-nearbyplaces-api#readme",
     "dependencies": {
       "cors": "^2.8.5",
-      "express": "^4.17.1"
+      "express": "^4.17.1",
+      "pg": "^8.5.1"
     }
   }
