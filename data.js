@@ -1,40 +1,77 @@
+const { Client } = require('pg');
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-var quizzes = [
-    ['Quiz1','daffodil',"1"],
-    ['Quiz2','tulip',"2"],
-    ['Quiz3','elephant',"3"]
-]   
+const client = new Client({
+    user: 'fiwtsdfozekhio',
+    host: 'ec2-52-203-165-126.compute-1.amazonaws.com',
+    database: 'dc543vpeoh8jak',
+    password: 'b25a0396fd05f4ad481d76d510233eff495125c0350527620835582d4225b879',
+    port: 5432,
+    ssl: true 
+  })
+  console.log("Connecting")
+    client.connect().then(x => console.log("Connect Complete DB",x)).catch(e => console.log("caught error", e))
+  console.log("Connected")
 
-var questions = {
-    Quiz1: 
-        [
-            ['daffodil',["daffodil", "cherryblossom", "sunflower", "waterlily"],"daffodil"],
-            ['cherryblossom',["daisy", "sunflower", "lily", "cherryblossom"],"cherryblossom"],
-            ['daisy',["waterlily", "cherryblossom", "daisy", "rose"],"daisy"],
-            ['lily',["rose", "lily", "rose", "waterlily"],"lily"],
-            ['rose',["tulip", "sunflower", "waterlily", "rose"],"rose"],
-            ['sunflower',["sunflower", "tulip", "rose", "daisy"],"sunflower"],
-        ],
-    Quiz2:
-        [
-            ['tulip',["daisy", "waterlily", "lily", "tulip"],"tulip"],
-            ['waterlily',["daffodil", "waterlily", "tulip", "cherryblossom"],"waterlily"],
-            ['bear',["bear", "rat", "lion", "elephant"],"bear"],
-            ['butter',["croissant", "butter", "milkshake", "fruit"],"butter"],
-            ['cat',["rat", "lion", "cat", "bear"],"cat"],
-            ['croissant',["bread", "butter", "milkshake", "croissant"],"croissant"],
-        ],
-    Quiz3:
-        [
-            ['elephant',["elephant", "cat", "rat", "bear"],"elephant"],
-            ['fruit',["nut", "fruit", "wheat", "rice"],"fruit"],
-            ['lion',["pardus", "cat", "lion", "tiger"],"lion"],
-            ['milkshake',["egg", "soup", "milk", "milkshake"],"milkshake"],
-            ['pie',["pie", "cake", "mooncake", "ice cream"],"pie"],
-            ['rat',["cat", "rat", "lion", "tiger"],"rat"],
-        ]
+function strinc (str,inc){
+    return (
+    str.toLowerCase().includes(inc.toLowerCase())
+    )
 }
+function wildcard (s) {
+    return `%${s}%`
+}
+const data = {
+    findbusinesses:(response,text,city,state) => {
+        
+        client.query("select * from nearbyplaces.business where name ilike $1 and city ilike $2 and state ilike $3", [wildcard(text),wildcard(city),wildcard(state)],(err, res) => {
 
-module.exports.quizzes = quizzes
-module.exports.questions = questions
+            response.status(200).json(res.rows)
+        })
+    },
+    addbusiness:(response,b) => {
+        client.query("INSERT INTO nearbyplaces.business (name, address, city, state, zip, phone)\
+        VALUES($1,$2,$3,$4,$5,$6);",[b.name,b.address,b.city,b.state,b.zip,b.phone], (err, res) => {
+
+            response.status(200).json("ok")
+        })
+    },
+    updatebusiness:(response,b) => {
+        console.log("updatebussiness",b)
+        client.query("UPDATE nearbyplaces.business SET name=$1, address=$2, city=$3, state=$4, zip=$5, phone=$6 WHERE id=$7;",
+            [b.name,b.address,b.city,b.state,b.zip,b.phone,b.id],(err, res) => {
+            console.log(err, res)
+            response.status(200).json("ok")
+        })
+        
+    },
+    addupdatebusiness:(business) => {
+        console.log("addupdate:", business)
+        data.addbusiness(business)
+    },
+    deletebusiness:(id) => {
+        businesses[id].active = false
+    }
+    ,
+    allbusinesses:(response) => {
+        client.query('SELECT * from nearbyplaces.business', (err, res) => {
+
+            response.status(200).json(res.rows)
+        })
+    },
+    businessbyid:(id) => {
+
+        return businesses[id]
+    },
+    addreview:(id,review) => {
+        console.log("addreview",id,review)
+        const b = businesses[id]
+        console.log("review:",b)
+        b.reviews.push(review)
+
+    }
+    
+
+}
+module.exports.data = data
