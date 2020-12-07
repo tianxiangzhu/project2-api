@@ -3,10 +3,10 @@ const { Client } = require('pg');
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const client = new Client({
-    user: 'fiwtsdfozekhio',
-    host: 'ec2-52-203-165-126.compute-1.amazonaws.com',
-    database: 'dc543vpeoh8jak',
-    password: 'b25a0396fd05f4ad481d76d510233eff495125c0350527620835582d4225b879',
+    user: 'fwxntspyqtrmml',
+    host: 'ec2-52-22-238-188.compute-1.amazonaws.com',
+    database: 'd93p03icloe35f',
+    password: '452dff5bffa2049a59c1266abbeafa01daf48bf6c47ca1beb260250f8695edf1',
     port: 5432,
     ssl: true 
   })
