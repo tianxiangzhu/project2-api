@@ -25,13 +25,13 @@ function wildcard (s) {
 const data = {
     findbusinesses:(response,text,city,state) => {
         
-        client.query("select * from nearbyplaces.business where name ilike $1 and city ilike $2 and state ilike $3", [wildcard(text),wildcard(city),wildcard(state)],(err, res) => {
+        client.query("select * from nearbyplaces.newtable where name ilike $1 and city ilike $2 and state ilike $3", [wildcard(text),wildcard(city),wildcard(state)],(err, res) => {
 
             response.status(200).json(res.rows)
         })
     },
     addbusiness:(response,b) => {
-        client.query("INSERT INTO nearbyplaces.business (name, address, city, state, zip, phone)\
+        client.query("INSERT INTO nearbyplaces.newtable (name, address, city, state, zip, phone)\
         VALUES($1,$2,$3,$4,$5,$6);",[b.name,b.address,b.city,b.state,b.zip,b.phone], (err, res) => {
 
             response.status(200).json("ok")
@@ -39,7 +39,7 @@ const data = {
     },
     updatebusiness:(response,b) => {
         console.log("updatebussiness",b)
-        client.query("UPDATE nearbyplaces.business SET name=$1, address=$2, city=$3, state=$4, zip=$5, phone=$6 WHERE id=$7;",
+        client.query("UPDATE nearbyplaces.newtable SET name=$1, address=$2, city=$3, state=$4, zip=$5, phone=$6 WHERE id=$7;",
             [b.name,b.address,b.city,b.state,b.zip,b.phone,b.id],(err, res) => {
             console.log(err, res)
             response.status(200).json("ok")
@@ -55,7 +55,7 @@ const data = {
     }
     ,
     allbusinesses:(response) => {
-        client.query('SELECT * from nearbyplaces.business', (err, res) => {
+        client.query('SELECT * from nearbyplaces.newtable', (err, res) => {
 
             response.status(200).json(res.rows)
         })
