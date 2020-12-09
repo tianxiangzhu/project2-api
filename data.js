@@ -72,9 +72,9 @@ const data = {
     },
 
 addreview:(response,bid,review) => {
-        client.query("INSERT INTO nearbyplaces.review (text) VALUES($1) returning id",[review],
+        client.query("INSERT INTO nearbyplaces.review (text) VALUES($1) returning bid",[review],
          (err, res) => {
-            client.query("INSERT INTO nearbyplaces.b_to_review (busid,reviewid) VALUES($1,$2)",[bid,res.rows[0].id],
+            client.query("INSERT INTO nearbyplaces.b_to_review (bid,reviewid) VALUES($1,$2)",[bid,res.rows[0].id],
          (err, res) => {
             response.status(200).json("review add done")
          })})  
