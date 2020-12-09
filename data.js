@@ -1,6 +1,4 @@
 const { Client } = require('pg');
-const { request } = require('express');
-const exp = require('express');
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
