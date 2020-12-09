@@ -1,4 +1,6 @@
 const { Client } = require('pg');
+const { request } = require('express');
+const exp = require('express');
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
@@ -10,9 +12,7 @@ const client = new Client({
     port: 5432,
     ssl: true 
   })
-  console.log("Connecting")
-    client.connect().then(x => console.log("Connect Complete DB",x)).catch(e => console.log("caught error", e))
-  console.log("Connected")
+    client.connect().then(x => console.log("Connect Database",x)).catch(e => console.log("caught error", e))
 
 function strinc (str,inc){
     return (
@@ -24,54 +24,60 @@ function wildcard (s) {
 }
 const data = {
     findbusinesses:(response,text,city,state) => {
-        
         client.query("select * from nearbyplaces.newtable where name ilike $1 and city ilike $2 and state ilike $3", [wildcard(text),wildcard(city),wildcard(state)],(err, res) => {
-
-            response.status(200).json(res.rows)
+            response.status(200).json("find done")
         })
     },
     addbusiness:(response,b) => {
         client.query("INSERT INTO nearbyplaces.newtable (name, address, city, state, zip, phone)\
         VALUES($1,$2,$3,$4,$5,$6);",[b.name,b.address,b.city,b.state,b.zip,b.phone], (err, res) => {
-
-            response.status(200).json("ok")
+            response.status(200).json("add done")
         })
     },
     updatebusiness:(response,b) => {
-        console.log("updatebussiness",b)
         client.query("UPDATE nearbyplaces.newtable SET name=$1, address=$2, city=$3, state=$4, zip=$5, phone=$6 WHERE id=$7;",
             [b.name,b.address,b.city,b.state,b.zip,b.phone,b.id],(err, res) => {
-            console.log(err, res)
-            response.status(200).json("ok")
+            response.status(200).json("update done")
         })
         
     },
     addupdatebusiness:(business) => {
-        console.log("addupdate:", business)
         data.addbusiness(business)
     },
-    deletebusiness:(id) => {
-        businesses[id].active = false
-    }
-    ,
-    allbusinesses:(response) => {
-        client.query('SELECT * from nearbyplaces.newtable', (err, res) => {
-
-            response.status(200).json(res.rows)
+    deletebusiness:(response,id) => {
+        client.query("DELETE FROM nearbyplaces.newtable WHERE id=$1;",[id],
+        (err, res) => {
+            response.status(200).json("delete done")
         })
     },
-    businessbyid:(id) => {
 
+    allbusinesses:(response) => {
+        client.query('SELECT * from nearbyplaces.business; SELECT text , br.busid FROM nearbyplaces.review r, nearbyplaces.bus_review br where r.id = br.reviewid',
+         (err, res) => {
+           for (let a = 0 ; a < res[0].rows.length; a++) {
+                let b = res[0].rows[a]
+                b.reviews = []
+                for (c = 0; c <res[1].rows.length; c++){
+                    let d = res[1].rows[c]
+                    if (b.id == d.busid){
+                       b.reviews.push(d.text) 
+                    }}
+           }
+            response.status(200).json(res[0].rows)
+        })
+    },
+
+    businessbyid:(id) => {
         return businesses[id]
     },
-    addreview:(id,review) => {
-        console.log("addreview",id,review)
-        const b = businesses[id]
-        console.log("review:",b)
-        b.reviews.push(review)
 
+addreview:(response,bid,review) => {
+        client.query("INSERT INTO nearbyplaces.review (text) VALUES($1) returning id",[review],
+         (err, res) => {
+            client.query("INSERT INTO nearbyplaces.b_to_review (busid,reviewid) VALUES($1,$2)",[bid,res.rows[0].id],
+         (err, res) => {
+            response.status(200).json("review add done")
+         })})  
     }
-    
-
 }
 module.exports.data = data
